@@ -82,7 +82,7 @@ export const usePostsStore = defineStore('posts', () => {
         const post = posts.value[currentIndex.value]
         currentIndex.value++
 
-        if (!viewed.value.includes(post.id) && post.tags.length >= 10) {
+        if (post && !viewed.value.includes(post.id) && post.tags.length >= 10) {
           viewed.value.push(post.id)
           return post
         }
