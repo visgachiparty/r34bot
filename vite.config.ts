@@ -8,7 +8,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/r34-bot/',
   plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
+  build: {
+    outDir: 'docs',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('.', import.meta.url)),

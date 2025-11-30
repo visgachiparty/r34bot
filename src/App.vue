@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { usePostsStore, type Post } from './stores/posts'
 import PostCard from './components/posts/PostCard.vue'
 
@@ -15,6 +15,13 @@ async function loadNextPost() {
 
   if (post) {
     displayedPosts.value.push(post)
+
+    // Scroll to the newly added post after it's rendered
+    await nextTick()
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth'
+    })
   }
 
   isLoadingMore.value = false
