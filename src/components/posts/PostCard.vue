@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Post } from '@/src/stores/posts'
 import { Card, CardContent, CardFooter } from '@/src/components/ui/card'
+import type { Post } from '../PostsLine.vue'
 
 defineProps<{
   post: Post
