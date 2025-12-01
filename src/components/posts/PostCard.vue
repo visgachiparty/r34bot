@@ -1,10 +1,23 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { Card, CardContent, CardFooter } from '@/src/components/ui/card'
 import type { Post } from '../PostsLine.vue'
 
-defineProps<{
+const props = defineProps<{
   post: Post
 }>()
+
+const showAllTags = ref(false)
+
+const visibleTags = computed(() => {
+  if (showAllTags.value || props.post.tags.length <= 10) {
+    return props.post.tags
+  }
+  return props.post.tags.slice(0, 10)
+})
+
+const hasMoreTags = computed(() => props.post.tags.length > 10)
+const remainingTagsCount = computed(() => props.post.tags.length - 10)
 </script>
 
 <template>
@@ -19,12 +32,19 @@ defineProps<{
     </CardContent>
     <CardFooter class="flex flex-wrap gap-2 p-4">
       <span
-        v-for="tag in post.tags"
+        v-for="tag in visibleTags"
         :key="tag"
         class="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md"
       >
         {{ tag }}
       </span>
+      <button
+        v-if="hasMoreTags"
+        @click="showAllTags = !showAllTags"
+        class="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
+      >
+        {{ showAllTags ? 'Show less' : `+${remainingTagsCount} more` }}
+      </button>
     </CardFooter>
   </Card>
 </template>
