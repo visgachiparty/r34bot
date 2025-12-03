@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useProfileStore } from '../stores/profile'
+import { useProfilesStore } from '../stores/profile'
 
-const profileStore = useProfileStore()
+const profilesStore = useProfilesStore()
 const newTag = ref('')
 
 function addTag() {
   const tag = newTag.value.trim()
   if (tag) {
-    profileStore.addToBanList(tag)
+    profilesStore.addToBanList(tag)
     newTag.value = ''
   }
 }
 
 function removeTag(tag: string) {
-  profileStore.removeFromBanList(tag)
+  profilesStore.removeFromBanList(tag)
 }
 </script>
 
@@ -40,12 +40,12 @@ function removeTag(tag: string) {
     </div>
 
     <!-- Ban list -->
-    <div v-if="profileStore.banList.length === 0" class="text-muted-foreground text-sm">
+    <div v-if="!profilesStore.activeProfile || profilesStore.activeProfile.banList.length === 0" class="text-muted-foreground text-sm">
       No banned tags yet.
     </div>
     <div v-else class="flex flex-col gap-1 overflow-y-auto flex-1">
       <div
-        v-for="tag in profileStore.banList"
+        v-for="tag in profilesStore.activeProfile.banList"
         :key="tag"
         class="flex justify-between items-center px-3 py-2 rounded-md hover:bg-secondary/50 transition-colors flex-shrink-0 group"
       >

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-export interface ProfileSnapshot {
+export type ProfileSnapshot = {
   id: string
   name: string
   banList: string[]
@@ -12,223 +12,168 @@ export interface ProfileSnapshot {
 
 const STORAGE_KEY = 'r34-profiles'
 
-function generateId(): string {
-  return crypto.randomUUID()
-}
+const generateId = (): string => crypto.randomUUID()
 
-function loadProfiles(): ProfileSnapshot[] {
+const loadProfiles = (): ProfileSnapshot[] => {
   const stored = localStorage.getItem(STORAGE_KEY)
   return stored ? JSON.parse(stored) : []
 }
 
-function saveProfiles(profiles: ProfileSnapshot[]) {
+const saveProfiles = (profiles: ProfileSnapshot[]) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles))
 }
 
-export const useProfileStore = defineStore('profile', () => {
-  const profileId = ref<string>(generateId())
-  const profileName = ref<string>('Default')
-  const banList = ref<string[]>([])
-  const tagsRate = ref<Record<string, number>>({})
-  const isLocked = ref<boolean>(false)
+export const useProfilesStore = defineStore('profiles', () => {
+  const profiles = ref<ProfileSnapshot[]>(loadProfiles())
+  const activeProfileId = ref<string>('')
 
-  // Auto-save current profile to localStorage
+  // Auto-save to localStorage on every change
   watch(
-    [profileName, banList, tagsRate, isLocked],
-    () => {
-      saveCurrentProfile()
+    profiles,
+    (newProfiles) => {
+      saveProfiles(newProfiles)
     },
-    { deep: true }
+    { deep: true },
   )
 
-  function addToBanList(tag: string) {
-    if (!banList.value.includes(tag)) {
-      banList.value.push(tag)
+  const activeProfile = computed(() =>
+    profiles.value.find((profile) => profile.id === activeProfileId.value),
+  )
+
+  const addToBanList = (tag: string) => {
+    const profile = activeProfile.value
+    if (profile && !profile.banList.includes(tag)) {
+      profile.banList.push(tag)
     }
   }
 
-  function removeFromBanList(tag: string) {
-    const index = banList.value.indexOf(tag)
-    if (index > -1) {
-      banList.value.splice(index, 1)
+  const removeFromBanList = (tag: string) => {
+    const profile = activeProfile.value
+    if (profile) {
+      const index = profile.banList.indexOf(tag)
+      if (index > -1) {
+        profile.banList.splice(index, 1)
+      }
     }
   }
 
-  function like(tags: string[]) {
-    if (!isLocked.value) {
+  const resetTagRating = (tag: string) => {
+    const profile = activeProfile.value
+    if (profile && profile.tagsRate[tag] !== undefined) {
+      profile.tagsRate[tag] = 0
+    }
+  }
+
+  const like = (tags: string[]) => {
+    const profile = activeProfile.value
+    if (profile && !profile.isLocked) {
       tags.forEach((tag) => {
-        if (!tagsRate.value[tag]) {
-          tagsRate.value[tag] = 0
+        if (!profile.tagsRate[tag]) {
+          profile.tagsRate[tag] = 0
         }
-        tagsRate.value[tag]++
+        profile.tagsRate[tag]++
       })
     }
   }
 
-  function dislike(tags: string[]) {
-    if (!isLocked.value) {
+  const dislike = (tags: string[]) => {
+    const profile = activeProfile.value
+    if (profile && !profile.isLocked) {
       tags.forEach((tag) => {
-        if (!tagsRate.value[tag]) {
-          tagsRate.value[tag] = 0
+        if (!profile.tagsRate[tag]) {
+          profile.tagsRate[tag] = 0
         }
-        tagsRate.value[tag]--
+        profile.tagsRate[tag]--
+        if (profile.tagsRate[tag] < -5) {
+          addToBanList(tag)
+        }
       })
     }
   }
 
-  function saveCurrentProfile() {
-    const profiles = loadProfiles()
-
-    // Mark all profiles as inactive
-    const updatedProfiles = profiles.map((p) => ({ ...p, isActive: false }))
-
-    const existingIndex = updatedProfiles.findIndex((p) => p.id === profileId.value)
-
-    const snapshot: ProfileSnapshot = {
-      id: profileId.value,
-      name: profileName.value,
-      banList: [...banList.value],
-      tagsRate: { ...tagsRate.value },
-      isActive: true,
-      isLocked: isLocked.value,
-    }
-
-    if (existingIndex >= 0) {
-      updatedProfiles[existingIndex] = snapshot
-    } else {
-      updatedProfiles.push(snapshot)
-    }
-
-    saveProfiles(updatedProfiles)
+  const loadProfile = (targetId: string) => {
+    profiles.value.forEach((profile) => {
+      profile.isActive = profile.id === targetId
+    })
+    activeProfileId.value = targetId
   }
 
-  function loadProfile(snapshot: ProfileSnapshot) {
-    profileId.value = snapshot.id
-    profileName.value = snapshot.name
-    banList.value = [...snapshot.banList]
-    tagsRate.value = { ...snapshot.tagsRate }
-    isLocked.value = snapshot.isLocked ?? false
-
-    // Update all profiles to mark this one as active
-    const profiles = loadProfiles().map((p) => ({
-      ...p,
-      isActive: p.id === snapshot.id,
-    }))
-    saveProfiles(profiles)
-  }
-
-  function createNewProfile(name: string) {
-    // Save current profile before switching
-    const profiles = loadProfiles()
-    const existingIndex = profiles.findIndex((p) => p.id === profileId.value)
-
-    const currentSnapshot: ProfileSnapshot = {
-      id: profileId.value,
-      name: profileName.value,
-      banList: [...banList.value],
-      tagsRate: { ...tagsRate.value },
-      isActive: false,
-      isLocked: isLocked.value,
-    }
-
-    if (existingIndex >= 0) {
-      profiles[existingIndex] = currentSnapshot
-    } else {
-      profiles.push(currentSnapshot)
-    }
-
-    // Create new profile
+  const createNewProfile = (newName: string) => {
     const newProfile: ProfileSnapshot = {
       id: generateId(),
-      name,
+      name: newName,
       banList: [],
       tagsRate: {},
-      isActive: true,
+      isActive: false,
       isLocked: false,
     }
 
-    profiles.push(newProfile)
-    saveProfiles(profiles)
-
-    // Switch to new profile
-    profileId.value = newProfile.id
-    profileName.value = newProfile.name
-    banList.value = []
-    tagsRate.value = {}
-    isLocked.value = false
+    profiles.value.push(newProfile)
+    loadProfile(newProfile.id)
   }
 
-  function deleteProfile(id: string) {
-    const profiles = loadProfiles().filter((p) => p.id !== id)
-    saveProfiles(profiles)
+  const deleteProfile = (targetId: string) => {
+    const index = profiles.value.findIndex((profile) => profile.id === targetId)
+    if (index === -1) return
 
-    // If deleting current profile, switch to first available or create new
-    if (id === profileId.value) {
-      const firstProfile = profiles[0]
+    profiles.value.splice(index, 1)
+
+    if (targetId === activeProfileId.value) {
+      const firstProfile = profiles.value[0]
       if (firstProfile) {
-        loadProfile(firstProfile)
+        loadProfile(firstProfile.id)
       } else {
         createNewProfile('Default')
       }
     }
   }
 
-  function renameProfile(name: string) {
-    profileName.value = name
-    saveCurrentProfile()
+  const renameProfile = (targetId: string, newName: string) => {
+    const profile = profiles.value.find((p) => p.id === targetId)
+    if (profile) {
+      profile.name = newName
+    }
   }
 
-  function getAllProfiles(): ProfileSnapshot[] {
-    return loadProfiles()
+  const toggleLock = (targetId: string) => {
+    const profile = profiles.value.find((p) => p.id === targetId)
+    if (profile) {
+      profile.isLocked = !profile.isLocked
+    }
   }
 
-  function toggleLock() {
-    isLocked.value = !isLocked.value
-  }
-
-  // Initialize: Load last active profile or create default
-  function init() {
-    const profiles = loadProfiles()
-
-    // Find active profile
-    const activeProfile = profiles.find((p) => p.isActive)
-    if (activeProfile) {
-      profileId.value = activeProfile.id
-      profileName.value = activeProfile.name
-      banList.value = [...activeProfile.banList]
-      tagsRate.value = { ...activeProfile.tagsRate }
-      isLocked.value = activeProfile.isLocked ?? false
+  const init = () => {
+    if (profiles.value.length === 0) {
+      createNewProfile('Default')
       return
     }
 
-    // No active profile found, use first profile or create default
-    const firstProfile = profiles[0]
-    if (firstProfile) {
-      loadProfile(firstProfile)
+    const savedActiveProfile = profiles.value.find((profile) => profile.isActive)
+    if (savedActiveProfile) {
+      activeProfileId.value = savedActiveProfile.id
     } else {
-      saveCurrentProfile() // Save initial default profile
+      const firstProfile = profiles.value[0]
+      if (firstProfile) {
+        loadProfile(firstProfile.id)
+      }
     }
   }
 
-  // Initialize on store creation
   init()
 
   return {
-    profileId,
-    profileName,
-    banList,
-    tagsRate,
-    isLocked,
+    profiles,
+    activeProfileId,
+    activeProfile,
     addToBanList,
     removeFromBanList,
+    resetTagRating,
     like,
     dislike,
-    saveCurrentProfile,
     loadProfile,
     createNewProfile,
     deleteProfile,
     renameProfile,
-    getAllProfiles,
     toggleLock,
   }
 })

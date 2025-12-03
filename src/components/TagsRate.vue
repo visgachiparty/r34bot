@@ -1,19 +1,46 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useProfileStore } from '../stores/profile'
+import { ref, computed } from 'vue'
+import { useProfilesStore } from '../stores/profile'
 
-const profileStore = useProfileStore()
+const profilesStore = useProfilesStore()
+
+enum ViewMode {
+  Top = 'top',
+  Worst = 'worst',
+}
+
+const viewMode = ref<ViewMode>(ViewMode.Top)
 
 const sortedTags = computed(() => {
-  return Object.entries(profileStore.tagsRate)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 50) // Show top 50 tags
+  const activeProfile = profilesStore.activeProfile
+  if (!activeProfile) return []
+
+  const entries = Object.entries(activeProfile.tagsRate)
+
+  if (viewMode.value === ViewMode.Top) {
+    return entries
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 50)
+  } else {
+    return entries
+      .sort(([, a], [, b]) => a - b)
+      .slice(0, 50)
+  }
 })
 </script>
 
 <template>
   <div class="flex flex-col h-full">
-    <h2 class="text-xl font-bold mb-4 flex-shrink-0">Tags Rating</h2>
+    <div class="flex items-center justify-between mb-4 flex-shrink-0 gap-4">
+      <h2 class="text-xl font-bold">Tags Rating</h2>
+      <select
+        v-model="viewMode"
+        class="px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-secondary/50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option :value="ViewMode.Top">Top 50</option>
+        <option :value="ViewMode.Worst">Worst 50</option>
+      </select>
+    </div>
     <div v-if="sortedTags.length === 0" class="text-muted-foreground text-sm">
       No ratings yet. Start liking or disliking posts!
     </div>
@@ -24,16 +51,25 @@ const sortedTags = computed(() => {
         class="flex justify-between items-center px-3 py-2 rounded-md hover:bg-secondary/50 transition-colors flex-shrink-0"
       >
         <span class="text-sm truncate flex-1">{{ tag }}</span>
-        <span
-          class="text-sm font-medium ml-2"
-          :class="{
-            'text-green-500': rating > 0,
-            'text-red-500': rating < 0,
-            'text-muted-foreground': rating === 0
-          }"
-        >
-          {{ rating > 0 ? '+' : '' }}{{ rating }}
-        </span>
+        <div class="flex items-center gap-2">
+          <span
+            class="text-sm font-medium"
+            :class="{
+              'text-green-500': rating > 0,
+              'text-red-500': rating < 0,
+              'text-muted-foreground': rating === 0,
+            }"
+          >
+            {{ rating > 0 ? '+' : '' }}{{ rating }}
+          </span>
+          <button
+            v-if="viewMode === ViewMode.Worst"
+            @click="profilesStore.resetTagRating(tag)"
+            class="px-2 py-1 text-xs rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   </div>

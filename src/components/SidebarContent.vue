@@ -4,55 +4,57 @@ import TagsRate from './TagsRate.vue'
 import BanList from './BanList.vue'
 import Profiles from './Profiles.vue'
 
-type Tab = 'tags' | 'ban' | 'profiles'
+enum Tab {
+  Tags = 'tags',
+  Ban = 'ban',
+  Profiles = 'profiles',
+}
 
-const activeTab = ref<Tab>('tags')
+const activeTab = ref<Tab>(Tab.Tags)
 </script>
 
 <template>
   <div class="flex flex-col h-full">
-    <!-- Tabs -->
     <div class="flex gap-2 mb-4 flex-shrink-0">
       <button
-        @click="activeTab = 'tags'"
+        @click="activeTab = Tab.Tags"
         :class="[
           'flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors',
-          activeTab === 'tags'
+          activeTab === Tab.Tags
             ? 'bg-primary text-primary-foreground'
-            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ]"
       >
         Tags
       </button>
       <button
-        @click="activeTab = 'ban'"
+        @click="activeTab = Tab.Ban"
         :class="[
           'flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors',
-          activeTab === 'ban'
+          activeTab === Tab.Ban
             ? 'bg-primary text-primary-foreground'
-            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ]"
       >
         Ban
       </button>
       <button
-        @click="activeTab = 'profiles'"
+        @click="activeTab = Tab.Profiles"
         :class="[
           'flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors',
-          activeTab === 'profiles'
+          activeTab === Tab.Profiles
             ? 'bg-primary text-primary-foreground'
-            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ]"
       >
         Profiles
       </button>
     </div>
 
-    <!-- Content -->
     <div class="flex-1 overflow-hidden">
-      <TagsRate v-if="activeTab === 'tags'" />
-      <BanList v-else-if="activeTab === 'ban'" />
-      <Profiles v-else-if="activeTab === 'profiles'" />
+      <TagsRate v-if="activeTab === Tab.Tags" />
+      <BanList v-else-if="activeTab === Tab.Ban" />
+      <Profiles v-else-if="activeTab === Tab.Profiles" />
     </div>
   </div>
 </template>

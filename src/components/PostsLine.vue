@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import { useProfileStore } from '../stores/profile'
+import { useProfilesStore } from '../stores/profile'
 import PostCard from './posts/PostCard.vue'
 
 const LIMIT = 100
@@ -11,7 +11,7 @@ export interface Post {
   fileUrl: string
 }
 
-const profileStore = useProfileStore()
+const profilesStore = useProfilesStore()
 
 const posts = ref<Post[]>([])
 const viewed = ref<string[]>([])
@@ -27,7 +27,7 @@ const userId = import.meta.env.VITE_RULE_34_API_USER_ID
 const baseUrl = import.meta.env.VITE_RULE_34_API_POST_LIST_URL
 
 async function fetchPosts(page: number): Promise<Post[]> {
-  const banListString = profileStore.banList.join(' ')
+  const banListString = profilesStore.activeProfile?.banList.join(' ') || ''
   let url =
     baseUrl +
     '&api_key=' +
@@ -71,13 +71,12 @@ async function getNextPost(): Promise<Post | null> {
 
   try {
     while (true) {
-      // Fetch new posts if we've exhausted the current page
       if (currentIndex.value >= LIMIT || posts.value.length === 0) {
         currentIndex.value = 0
         const fetchedPosts = await fetchPosts(currentPage.value)
 
         if (fetchedPosts.length === 0) {
-          return null // No more posts
+          return null
         }
 
         posts.value = fetchedPosts
@@ -106,14 +105,14 @@ async function loadNextPost() {
   if (post) {
     displayedPosts.value.push(post)
 
-    // Scroll to the newly added post after it's rendered
     await nextTick()
+    // Scroll to the bottom of the page
     setTimeout(() => {
       window.scrollTo({
         top: document.body.scrollHeight,
         behavior: 'smooth',
       })
-    }, 200)
+    }, 150)
   }
 
   isLoadingMore.value = false
@@ -122,7 +121,7 @@ async function loadNextPost() {
 async function handleLike() {
   const lastPost = displayedPosts.value[displayedPosts.value.length - 1]
   if (lastPost) {
-    profileStore.like(lastPost.tags)
+    profilesStore.like(lastPost.tags)
   }
   await loadNextPost()
 }
@@ -130,7 +129,7 @@ async function handleLike() {
 async function handleDislike() {
   const lastPost = displayedPosts.value[displayedPosts.value.length - 1]
   if (lastPost) {
-    profileStore.dislike(lastPost.tags)
+    profilesStore.dislike(lastPost.tags)
   }
   await loadNextPost()
 }
@@ -143,7 +142,7 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col gap-6">
-    <PostCard v-for="post in displayedPosts" :key="post.id" :post="post" />
+    <PostCard v-for="post in displayedPosts" :key="post.id" :post="post" class="post-card" />
 
     <div class="w-full max-w-2xl mx-auto flex gap-4" v-if="displayedPosts.length > 0">
       <button

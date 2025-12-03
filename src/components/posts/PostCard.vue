@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Card, CardContent, CardFooter } from '@/src/components/ui/card'
+import { useProfilesStore } from '../../stores/profile'
 import type { Post } from '../PostsLine.vue'
 
 const props = defineProps<{
   post: Post
 }>()
 
+const profilesStore = useProfilesStore()
 const showAllTags = ref(false)
 
 const visibleTags = computed(() => {
@@ -18,6 +20,18 @@ const visibleTags = computed(() => {
 
 const hasMoreTags = computed(() => props.post.tags.length > 10)
 const remainingTagsCount = computed(() => props.post.tags.length - 10)
+
+const isTagBanned = (tag: string) => {
+  return profilesStore.activeProfile?.banList.includes(tag) ?? false
+}
+
+const toggleTagBan = (tag: string) => {
+  if (isTagBanned(tag)) {
+    profilesStore.removeFromBanList(tag)
+  } else {
+    profilesStore.addToBanList(tag)
+  }
+}
 </script>
 
 <template>
@@ -31,13 +45,15 @@ const remainingTagsCount = computed(() => props.post.tags.length - 10)
       />
     </CardContent>
     <CardFooter class="flex flex-wrap gap-2 p-4">
-      <span
+      <button
         v-for="tag in visibleTags"
         :key="tag"
-        class="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md"
+        @click="toggleTagBan(tag)"
+        class="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md hover:bg-secondary/80 transition-colors cursor-pointer"
+        :class="{ 'bg-destructive/20 text-destructive': isTagBanned(tag) }"
       >
-        {{ tag }}
-      </span>
+        <span v-if="isTagBanned(tag)" class="mr-1">−</span>{{ tag }}
+      </button>
       <button
         v-if="hasMoreTags"
         @click="showAllTags = !showAllTags"
