@@ -84,7 +84,7 @@ export const useProfilesStore = defineStore('profiles', () => {
           profile.tagsRate[tag] = 0
         }
         profile.tagsRate[tag]--
-        if (profile.tagsRate[tag] < -5) {
+        if (profile.tagsRate[tag] < -100) {
           addToBanList(tag)
         }
       })
