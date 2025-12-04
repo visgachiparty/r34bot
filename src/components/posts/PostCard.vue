@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { Card, CardContent, CardFooter } from '@/src/components/ui/card'
 import { useProfilesStore } from '../../stores/profile'
 import type { Post } from '../PostsLine.vue'
+import { toast } from 'vue-sonner'
 
 const props = defineProps<{
   post: Post
@@ -38,6 +39,12 @@ const toggleTagBan = (tag: string) => {
     profilesStore.addToBanList(tag)
   }
 }
+
+const copyTags = async () => {
+  const tagsText = props.post.tags.join(' ')
+  await navigator.clipboard.writeText(tagsText)
+  toast.success('Tags copied to clipboard!')
+}
 </script>
 
 <template>
@@ -50,36 +57,44 @@ const toggleTagBan = (tag: string) => {
         loading="lazy"
       />
     </CardContent>
-    <CardFooter class="flex flex-wrap gap-2 p-4">
-      <div class="px-3 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-md">
-        Total: {{ totalRating }}
-      </div>
-      <button
-        v-for="tag in visibleTags"
-        :key="tag"
-        @click="toggleTagBan(tag)"
-        class="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md hover:bg-secondary/80 transition-colors cursor-pointer"
-        :class="{ 'bg-destructive/20 text-destructive': isTagBanned(tag) }"
-      >
-        <span v-if="isTagBanned(tag)" class="mr-1">−</span>{{ tag }}
-        <span
-          v-if="getTagRating(tag) !== 0"
-          class="ml-1 font-semibold"
-          :class="{
-            'text-green-600': getTagRating(tag) > 0,
-            'text-red-600': getTagRating(tag) < 0,
-          }"
+    <CardFooter class="flex flex-col gap-3 p-4">
+      <div class="flex flex-wrap gap-2 w-full">
+        <div class="px-3 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-md">
+          Total: {{ totalRating }}
+        </div>
+        <button
+          v-for="tag in visibleTags"
+          :key="tag"
+          @click="toggleTagBan(tag)"
+          class="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md hover:bg-secondary/80 transition-colors cursor-pointer"
+          :class="{ 'bg-destructive/20 text-destructive': isTagBanned(tag) }"
         >
-          {{ getTagRating(tag) > 0 ? '+' : '' }}{{ getTagRating(tag) }}
-        </span>
-      </button>
-      <button
-        v-if="hasMoreTags"
-        @click="showAllTags = !showAllTags"
-        class="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
-      >
-        {{ showAllTags ? 'Show less' : `+${remainingTagsCount} more` }}
-      </button>
+          <span v-if="isTagBanned(tag)" class="mr-1">−</span>{{ tag }}
+          <span
+            v-if="getTagRating(tag) !== 0"
+            class="ml-1 font-semibold"
+            :class="{
+              'text-green-600': getTagRating(tag) > 0,
+              'text-red-600': getTagRating(tag) < 0,
+            }"
+          >
+            {{ getTagRating(tag) > 0 ? '+' : '' }}{{ getTagRating(tag) }}
+          </span>
+        </button>
+        <button
+          v-if="hasMoreTags"
+          @click="showAllTags = !showAllTags"
+          class="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
+        >
+          {{ showAllTags ? 'Show less' : `+${remainingTagsCount} more` }}
+        </button>
+        <button
+          @click="copyTags"
+          class="px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-md hover:bg-secondary/80 transition-colors"
+        >
+          Copy Tags
+        </button>
+      </div>
     </CardFooter>
   </Card>
 </template>
