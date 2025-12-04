@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useProfilesStore } from '../stores/profile'
 
 const profilesStore = useProfilesStore()
 const newTag = ref('')
+
+const banlistText = computed({
+  get: () => profilesStore.activeProfile?.banList.join(' ') || '',
+  set: (value: string) => {
+    if (!profilesStore.activeProfile) return
+    const tags = value.split(' ').filter(tag => tag.trim())
+    profilesStore.activeProfile.banList = tags
+  }
+})
 
 function addTag() {
   const tag = newTag.value.trim()
@@ -37,6 +46,16 @@ function removeTag(tag: string) {
       >
         Add
       </button>
+    </div>
+
+    <!-- Bulk edit textarea -->
+    <div class="mb-4 flex-shrink-0">
+      <textarea
+        v-model="banlistText"
+        placeholder="Enter tags separated by spaces..."
+        class="w-full px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+        rows="3"
+      ></textarea>
     </div>
 
     <!-- Ban list -->

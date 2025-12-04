@@ -64,6 +64,13 @@ export const useProfilesStore = defineStore('profiles', () => {
     }
   }
 
+  const setTagRating = (tag: string, rating: number) => {
+    const profile = activeProfile.value
+    if (profile) {
+      profile.tagsRate[tag] = Math.max(-100, Math.min(100, rating))
+    }
+  }
+
   const like = (tags: string[]) => {
     const profile = activeProfile.value
     if (profile && !profile.isLocked) {
@@ -71,7 +78,7 @@ export const useProfilesStore = defineStore('profiles', () => {
         if (!profile.tagsRate[tag]) {
           profile.tagsRate[tag] = 0
         }
-        profile.tagsRate[tag]++
+        profile.tagsRate[tag] = Math.min(profile.tagsRate[tag] + 1, 100)
       })
     }
   }
@@ -83,7 +90,7 @@ export const useProfilesStore = defineStore('profiles', () => {
         if (!profile.tagsRate[tag]) {
           profile.tagsRate[tag] = 0
         }
-        profile.tagsRate[tag]--
+        profile.tagsRate[tag] = Math.max(profile.tagsRate[tag] - 1, -100)
         if (profile.tagsRate[tag] < -100) {
           addToBanList(tag)
         }
@@ -168,6 +175,7 @@ export const useProfilesStore = defineStore('profiles', () => {
     addToBanList,
     removeFromBanList,
     resetTagRating,
+    setTagRating,
     like,
     dislike,
     loadProfile,

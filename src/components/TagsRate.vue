@@ -18,15 +18,26 @@ const sortedTags = computed(() => {
   const entries = Object.entries(activeProfile.tagsRate)
 
   if (viewMode.value === ViewMode.Top) {
-    return entries
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 50)
+    return entries.sort(([, a], [, b]) => b - a).slice(0, 50)
   } else {
-    return entries
-      .sort(([, a], [, b]) => a - b)
-      .slice(0, 50)
+    return entries.sort(([, a], [, b]) => a - b).slice(0, 50)
   }
 })
+
+const newTagName = ref('')
+const newTagRate = ref(0)
+
+const changeTagRate = () => {
+  const trimmedTagName = newTagName.value.trim()
+  if (trimmedTagName) {
+    if (profilesStore.activeProfile) {
+      profilesStore.activeProfile.tagsRate[trimmedTagName] =
+        newTagRate.value > 0 ? Math.min(100, newTagRate.value) : Math.max(-100, newTagRate.value)
+      newTagName.value = ''
+      newTagRate.value = 0
+    }
+  }
+}
 </script>
 
 <template>
@@ -40,6 +51,27 @@ const sortedTags = computed(() => {
         <option :value="ViewMode.Top">Top 50</option>
         <option :value="ViewMode.Worst">Worst 50</option>
       </select>
+    </div>
+    <div class="flex flex-col items-center gap-2 mb-4">
+      <input
+        v-model="newTagName"
+        type="text"
+        placeholder="Tag name"
+        class="w-full px-3 py-1.5 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring flex-1"
+      />
+      <input
+        v-model.number="newTagRate"
+        type="number"
+        placeholder="Rate"
+        step="1"
+        class="w-full px-3 py-1.5 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+      <button
+        @click="changeTagRate"
+        class="w-full px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
+      >
+        Change Rate
+      </button>
     </div>
     <div v-if="sortedTags.length === 0" class="text-muted-foreground text-sm">
       No ratings yet. Start liking or disliking posts!

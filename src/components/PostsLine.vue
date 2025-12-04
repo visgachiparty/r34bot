@@ -4,6 +4,7 @@ import { useProfilesStore } from '../stores/profile'
 import PostCard from './posts/PostCard.vue'
 
 const LIMIT = 100
+const MAX_VIEWED_POSTS = 1_000
 
 export interface Post {
   id: string
@@ -86,9 +87,28 @@ async function getNextPost(): Promise<Post | null> {
       const post = posts.value[currentIndex.value]
       currentIndex.value++
 
-      if (post && !viewed.value.includes(post.id) && post.tags.length >= 10) {
-        viewed.value.push(post.id)
-        return post
+      if (post) {
+        const atLeastOneTagInBanList = post.tags.some((tag) =>
+          profilesStore.activeProfile?.banList.includes(tag),
+        )
+        const total = post.tags.reduce(
+          (sum, tag) => sum + (profilesStore.activeProfile?.tagsRate[tag] ?? 0),
+          0,
+        )
+        if (atLeastOneTagInBanList || (total < 0 && profilesStore.activeProfile?.isLocked)) {
+          viewed.value.push(post.id)
+          if (viewed.value.length >= MAX_VIEWED_POSTS) {
+            viewed.value.shift()
+          }
+          continue
+        }
+        if (!viewed.value.includes(post.id) && post.tags.length >= 10) {
+          viewed.value.push(post.id)
+          if (viewed.value.length >= MAX_VIEWED_POSTS) {
+            viewed.value.shift()
+          }
+          return post
+        }
       }
     }
   } finally {
@@ -134,6 +154,10 @@ async function handleDislike() {
   await loadNextPost()
 }
 
+async function handleSkip() {
+  await loadNextPost()
+}
+
 onMounted(() => {
   // Load first post on mount
   loadNextPost()
@@ -150,12 +174,19 @@ onMounted(() => {
         :disabled="isLoadingMore"
         class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
       >
-        {{ isLoadingMore ? 'Loading...' : '👍' }}
+        {{ isLoadingMore ? 'Loading...' : '❤️' }}
+      </button>
+      <button
+        @click="handleSkip"
+        :disabled="isLoadingMore"
+        class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+      >
+        {{ isLoadingMore ? 'Loading...' : 'Skip' }}
       </button>
       <button
         @click="handleDislike"
         :disabled="isLoadingMore"
-        class="flex-1 px-6 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+        class="bg-white flex-1 px-6 py-3 text-destructive-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
       >
         {{ isLoadingMore ? 'Loading...' : '👎' }}
       </button>

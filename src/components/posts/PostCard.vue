@@ -25,6 +25,12 @@ const isTagBanned = (tag: string) => {
   return profilesStore.activeProfile?.banList.includes(tag) ?? false
 }
 
+const getTagRating = (tag: string): number => {
+  return profilesStore.activeProfile?.tagsRate[tag] ?? 0
+}
+
+const totalRating = computed(() => props.post.tags.reduce((sum, tag) => sum + getTagRating(tag), 0))
+
 const toggleTagBan = (tag: string) => {
   if (isTagBanned(tag)) {
     profilesStore.removeFromBanList(tag)
@@ -45,6 +51,9 @@ const toggleTagBan = (tag: string) => {
       />
     </CardContent>
     <CardFooter class="flex flex-wrap gap-2 p-4">
+      <div class="px-3 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-md">
+        Total: {{ totalRating }}
+      </div>
       <button
         v-for="tag in visibleTags"
         :key="tag"
@@ -53,6 +62,16 @@ const toggleTagBan = (tag: string) => {
         :class="{ 'bg-destructive/20 text-destructive': isTagBanned(tag) }"
       >
         <span v-if="isTagBanned(tag)" class="mr-1">−</span>{{ tag }}
+        <span
+          v-if="getTagRating(tag) !== 0"
+          class="ml-1 font-semibold"
+          :class="{
+            'text-green-600': getTagRating(tag) > 0,
+            'text-red-600': getTagRating(tag) < 0,
+          }"
+        >
+          {{ getTagRating(tag) > 0 ? '+' : '' }}{{ getTagRating(tag) }}
+        </span>
       </button>
       <button
         v-if="hasMoreTags"
