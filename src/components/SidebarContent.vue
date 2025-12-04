@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import TagsRate from './TagsRate.vue'
 import BanList from './BanList.vue'
 import Profiles from './Profiles.vue'
@@ -11,10 +12,38 @@ enum Tab {
 }
 
 const activeTab = ref<Tab>(Tab.Tags)
+const route = useRoute()
 </script>
 
 <template>
   <div class="flex flex-col h-full">
+    <!-- Navigation -->
+    <div class="flex gap-2 mb-4 flex-shrink-0">
+      <RouterLink
+        to="/"
+        :class="[
+          'flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors text-center',
+          route.path === '/'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ]"
+      >
+        Home
+      </RouterLink>
+      <RouterLink
+        to="/favorites"
+        :class="[
+          'flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors text-center',
+          route.path === '/favorites'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ]"
+      >
+        Favorites
+      </RouterLink>
+    </div>
+
+    <!-- Settings Tabs -->
     <div class="flex gap-2 mb-4 flex-shrink-0">
       <button
         @click="activeTab = Tab.Tags"

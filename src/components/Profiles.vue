@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useProfilesStore } from '../stores/profile'
+import { useProfilesStore } from '@/src/stores/profiles'
 import { downloadFile } from '../utils/downloadFile'
 
 const profilesStore = useProfilesStore()

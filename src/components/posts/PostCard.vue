@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Card, CardContent, CardFooter } from '@/src/components/ui/card'
-import { useProfilesStore } from '../../stores/profile'
+import { useProfilesStore } from '@/src/stores/profiles'
 import type { Post } from '../PostsLine.vue'
 import { toast } from 'vue-sonner'
 
@@ -32,6 +32,23 @@ const getTagRating = (tag: string): number => {
 
 const totalRating = computed(() => props.post.tags.reduce((sum, tag) => sum + getTagRating(tag), 0))
 
+const isFavorite = computed(() => {
+  return profilesStore.activeProfile?.favorites.includes(props.post.fileUrl) ?? false
+})
+
+const toggleFavorite = () => {
+  if (!profilesStore.activeProfile) return
+
+  if (isFavorite.value) {
+    const index = profilesStore.activeProfile.favorites.indexOf(props.post.fileUrl)
+    if (index > -1) {
+      profilesStore.activeProfile.favorites.splice(index, 1)
+    }
+  } else {
+    profilesStore.activeProfile.favorites.push(props.post.fileUrl)
+  }
+}
+
 const toggleTagBan = (tag: string) => {
   if (isTagBanned(tag)) {
     profilesStore.removeFromBanList(tag)
@@ -59,6 +76,13 @@ const copyTags = async () => {
     </CardContent>
     <CardFooter class="flex flex-col gap-3 p-4">
       <div class="flex flex-wrap gap-2 w-full">
+        <button
+          @click="toggleFavorite"
+          class="px-3 py-1 bg-secondary text-secondary-foreground text-sm font-bold rounded-md hover:bg-secondary/80 transition-colors"
+          :class="{ 'text-yellow-500': isFavorite }"
+        >
+          {{ isFavorite ? '★' : '☆' }}
+        </button>
         <div class="px-3 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-md">
           Total: {{ totalRating }}
         </div>

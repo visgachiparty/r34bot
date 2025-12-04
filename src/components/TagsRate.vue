@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useProfilesStore } from '../stores/profile'
+import { useProfilesStore } from '@/src/stores/profiles'
 
 const profilesStore = useProfilesStore()
 

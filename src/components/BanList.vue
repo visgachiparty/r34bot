@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useProfilesStore } from '../stores/profile'
+import { useProfilesStore } from '@/src/stores/profiles'
 
 const profilesStore = useProfilesStore()
 const newTag = ref('')
@@ -9,9 +9,9 @@ const banlistText = computed({
   get: () => profilesStore.activeProfile?.banList.join(' ') || '',
   set: (value: string) => {
     if (!profilesStore.activeProfile) return
-    const tags = value.split(' ').filter(tag => tag.trim())
+    const tags = value.split(' ').filter((tag) => tag.trim())
     profilesStore.activeProfile.banList = tags
-  }
+  },
 })
 
 function addTag() {
@@ -59,7 +59,10 @@ function removeTag(tag: string) {
     </div>
 
     <!-- Ban list -->
-    <div v-if="!profilesStore.activeProfile || profilesStore.activeProfile.banList.length === 0" class="text-muted-foreground text-sm">
+    <div
+      v-if="!profilesStore.activeProfile || profilesStore.activeProfile.banList.length === 0"
+      class="text-muted-foreground text-sm"
+    >
       No banned tags yet.
     </div>
     <div v-else class="flex flex-col gap-1 overflow-y-auto flex-1">

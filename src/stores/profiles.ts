@@ -8,6 +8,7 @@ export type ProfileSnapshot = {
   tagsRate: Record<string, number>
   isActive: boolean
   isLocked: boolean
+  favorites: string[]
 }
 
 const STORAGE_KEY = 'r34-profiles'
@@ -113,6 +114,7 @@ export const useProfilesStore = defineStore('profiles', () => {
       tagsRate: {},
       isActive: false,
       isLocked: false,
+      favorites: [],
     }
 
     profiles.value.push(newProfile)
@@ -146,6 +148,16 @@ export const useProfilesStore = defineStore('profiles', () => {
     const profile = profiles.value.find((p) => p.id === targetId)
     if (profile) {
       profile.isLocked = !profile.isLocked
+    }
+  }
+
+  const removeFromFavorites = (fileUrl: string) => {
+    const profile = activeProfile.value
+    if (profile) {
+      const index = profile.favorites.indexOf(fileUrl)
+      if (index > -1) {
+        profile.favorites.splice(index, 1)
+      }
     }
   }
 
@@ -183,5 +195,6 @@ export const useProfilesStore = defineStore('profiles', () => {
     deleteProfile,
     renameProfile,
     toggleLock,
+    removeFromFavorites,
   }
 })

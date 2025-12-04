@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import { useProfilesStore } from '../stores/profile'
+import { useProfilesStore } from '../stores/profiles'
 import PostCard from './posts/PostCard.vue'
 
 const LIMIT = 100
-const MAX_VIEWED_POSTS = 1_000
+const MAX_VIEWED_POSTS = 10_000
 
 export interface Post {
   id: string

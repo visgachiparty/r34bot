@@ -12,8 +12,10 @@ function toggleMenu() {
 <template>
   <div class="lg:hidden">
     <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4">
-      <h1 class="text-xl font-bold">Posts</h1>
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4"
+    >
+      <h1 class="text-xl font-bold">R34 Line</h1>
       <button
         @click="toggleMenu"
         class="p-2 hover:bg-secondary rounded-lg transition-colors"
@@ -38,17 +40,13 @@ function toggleMenu() {
     </header>
 
     <!-- Mobile Menu Overlay -->
-    <div
-      v-if="isMenuOpen"
-      class="fixed inset-0 bg-black/50 z-40"
-      @click="toggleMenu"
-    ></div>
+    <div v-if="isMenuOpen" class="fixed inset-0 bg-black/50 z-40" @click="toggleMenu"></div>
 
     <!-- Mobile Menu Sidebar -->
     <aside
       :class="[
         'fixed top-0 right-0 h-screen w-80 bg-card border-l border-border p-6 z-50 transition-transform duration-300 flex flex-col',
-        isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        isMenuOpen ? 'translate-x-0' : 'translate-x-full',
       ]"
     >
       <div class="flex justify-between items-center mb-6 flex-shrink-0">
