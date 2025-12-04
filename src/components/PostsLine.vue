@@ -4,7 +4,6 @@ import { useProfilesStore } from '../stores/profiles'
 import PostCard from './posts/PostCard.vue'
 
 const LIMIT = 100
-const MAX_VIEWED_POSTS = 10_000
 
 export interface Post {
   id: string
@@ -15,7 +14,6 @@ export interface Post {
 const profilesStore = useProfilesStore()
 
 const posts = ref<Post[]>([])
-const viewed = ref<string[]>([])
 const currentPage = ref(0)
 const currentIndex = ref(0)
 const loading = ref(false)
@@ -96,17 +94,11 @@ async function getNextPost(): Promise<Post | null> {
           0,
         )
         if (atLeastOneTagInBanList || (total < 0 && profilesStore.activeProfile?.isLocked)) {
-          viewed.value.push(post.id)
-          if (viewed.value.length >= MAX_VIEWED_POSTS) {
-            viewed.value.shift()
-          }
+          profilesStore.addToViewed(post.id)
           continue
         }
-        if (!viewed.value.includes(post.id) && post.tags.length >= 10) {
-          viewed.value.push(post.id)
-          if (viewed.value.length >= MAX_VIEWED_POSTS) {
-            viewed.value.shift()
-          }
+        if (!profilesStore.isViewed(post.id) && post.tags.length >= 10) {
+          profilesStore.addToViewed(post.id)
           return post
         }
       }

@@ -9,6 +9,7 @@ export type ProfileSnapshot = {
   isActive: boolean
   isLocked: boolean
   favorites: string[]
+  viewed: string[]
 }
 
 const STORAGE_KEY = 'r34-profiles'
@@ -27,6 +28,8 @@ const saveProfiles = (profiles: ProfileSnapshot[]) => {
 export const useProfilesStore = defineStore('profiles', () => {
   const profiles = ref<ProfileSnapshot[]>(loadProfiles())
   const activeProfileId = ref<string>('')
+
+  const MAX_VIEWED_POSTS = 10_000
 
   // Auto-save to localStorage on every change
   watch(
@@ -115,6 +118,7 @@ export const useProfilesStore = defineStore('profiles', () => {
       isActive: false,
       isLocked: false,
       favorites: [],
+      viewed: [],
     }
 
     profiles.value.push(newProfile)
@@ -161,6 +165,21 @@ export const useProfilesStore = defineStore('profiles', () => {
     }
   }
 
+  const addToViewed = (postId: string) => {
+    const profile = activeProfile.value
+    if (profile) {
+      profile.viewed.push(postId)
+      if (profile.viewed.length >= MAX_VIEWED_POSTS) {
+        profile.viewed.shift()
+      }
+    }
+  }
+
+  const isViewed = (postId: string): boolean => {
+    const profile = activeProfile.value
+    return profile ? profile.viewed.includes(postId) : false
+  }
+
   const init = () => {
     if (profiles.value.length === 0) {
       createNewProfile('Default')
@@ -196,5 +215,7 @@ export const useProfilesStore = defineStore('profiles', () => {
     renameProfile,
     toggleLock,
     removeFromFavorites,
+    addToViewed,
+    isViewed,
   }
 })
