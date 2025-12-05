@@ -4,6 +4,7 @@ import { useProfilesStore } from '../stores/profiles'
 import { useLineStore } from '../stores/line'
 import PostCard from './posts/PostCard.vue'
 import type { Post } from '../types/post'
+import Spinner from './ui/card/Spinner.vue'
 
 const LIMIT = 100
 
@@ -168,28 +169,30 @@ watch(
       class="post-card"
     />
 
-    <div class="w-full max-w-2xl mx-auto flex gap-4" v-if="lineStore.displayedPosts.length > 0">
-      <button
-        @click="handleLike"
-        :disabled="isLoadingMore"
-        class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-      >
-        {{ isLoadingMore ? 'Loading...' : '❤️' }}
-      </button>
-      <button
-        @click="handleSkip"
-        :disabled="isLoadingMore"
-        class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-      >
-        {{ isLoadingMore ? 'Loading...' : 'Skip' }}
-      </button>
-      <button
-        @click="handleDislike"
-        :disabled="isLoadingMore"
-        class="bg-white flex-1 px-6 py-3 text-destructive-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-      >
-        {{ isLoadingMore ? 'Loading...' : '👎' }}
-      </button>
+    <div class="w-full max-w-2xl mx-auto" v-if="lineStore.displayedPosts.length > 0">
+      <div v-if="isLoadingMore" class="flex justify-center py-3">
+        <Spinner class="w-8 h-8 mx-auto" />
+      </div>
+      <div v-else class="flex gap-4">
+        <button
+          @click="handleLike"
+          class="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+        >
+          ❤️
+        </button>
+        <button
+          @click="handleSkip"
+          class="flex-1 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+        >
+          Skip
+        </button>
+        <button
+          @click="handleDislike"
+          class="bg-white flex-1 px-6 py-3 text-destructive-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+        >
+          👎
+        </button>
+      </div>
     </div>
   </div>
 </template>
