@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useProfilesStore } from '../stores/profiles'
 import { useLineStore } from '../stores/line'
 import PostCard from './posts/PostCard.vue'
@@ -95,7 +95,6 @@ async function getNextPost(): Promise<Post | null> {
           continue
         }
         if (!profilesStore.isViewed(post.id) && post.tags.length >= 10) {
-          profilesStore.addToViewed(post.id)
           return post
         }
       }
@@ -115,7 +114,6 @@ async function loadNextPost() {
     lineStore.displayedPosts.push(post)
 
     await nextTick()
-    // Scroll to the bottom of the page
     setTimeout(() => {
       window.scrollTo({
         top: document.body.scrollHeight,
@@ -130,6 +128,7 @@ async function loadNextPost() {
 async function handleLike() {
   const lastPost = lineStore.displayedPosts[lineStore.displayedPosts.length - 1]
   if (lastPost) {
+    profilesStore.addToViewed(lastPost.id)
     profilesStore.like(lastPost.tags)
   }
   await loadNextPost()
@@ -138,14 +137,34 @@ async function handleLike() {
 async function handleDislike() {
   const lastPost = lineStore.displayedPosts[lineStore.displayedPosts.length - 1]
   if (lastPost) {
+    profilesStore.addToViewed(lastPost.id)
     profilesStore.dislike(lastPost.tags)
   }
   await loadNextPost()
 }
 
 async function handleSkip() {
+  const lastPost = lineStore.displayedPosts[lineStore.displayedPosts.length - 1]
+  if (lastPost) {
+    profilesStore.addToViewed(lastPost.id)
+  }
   await loadNextPost()
 }
+
+onBeforeUnmount(() => {
+  lineStore.savedScrollPosition = window.scrollY
+})
+
+onMounted(() => {
+  if (lineStore.savedScrollPosition > 0) {
+    nextTick(() => {
+      window.scrollTo({
+        top: lineStore.savedScrollPosition,
+        behavior: 'auto',
+      })
+    })
+  }
+})
 
 watch(
   () => lineStore.displayedPosts.length,
