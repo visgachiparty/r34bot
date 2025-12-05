@@ -57,11 +57,11 @@ const copyTags = async () => {
 
 <template>
   <Card class="w-full max-w-2xl mx-auto">
-    <CardContent class="p-4">
+    <CardContent class="p-4 max-h-[70vh] overflow-y-auto">
       <img
         :src="post.fileUrl"
         :alt="`Post ${post.id}`"
-        class="w-full h-auto rounded-lg object-contain max-h-[70vh]"
+        class="w-full h-auto rounded-lg"
         loading="lazy"
       />
     </CardContent>
