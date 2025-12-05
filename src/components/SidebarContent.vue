@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import TagsRate from './TagsRate.vue'
+import Tags from './Tags.vue'
 import BanList from './BanList.vue'
 import Profiles from './Profiles.vue'
 
@@ -81,7 +81,7 @@ const route = useRoute()
     </div>
 
     <div class="flex-1 overflow-hidden">
-      <TagsRate v-if="activeTab === Tab.Tags" />
+      <Tags v-if="activeTab === Tab.Tags" />
       <BanList v-else-if="activeTab === Tab.Ban" />
       <Profiles v-else-if="activeTab === Tab.Profiles" />
     </div>

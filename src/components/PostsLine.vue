@@ -1,24 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { useProfilesStore } from '../stores/profiles'
+import { useLineStore } from '../stores/line'
 import PostCard from './posts/PostCard.vue'
+import type { Post } from '../types/post'
 
 const LIMIT = 100
 
-export interface Post {
-  id: string
-  tags: string[]
-  fileUrl: string
-}
-
 const profilesStore = useProfilesStore()
+const lineStore = useLineStore()
 
-const posts = ref<Post[]>([])
-const currentPage = ref(0)
-const currentIndex = ref(0)
 const loading = ref(false)
-
-const displayedPosts = ref<Post[]>([])
 const isLoadingMore = ref(false)
 
 const apiKey = import.meta.env.VITE_RULE_34_API_KEY
@@ -41,6 +33,10 @@ async function fetchPosts(page: number): Promise<Post[]> {
 
   if (banListString !== '') {
     url += '+-' + banListString.split(' ').join('+-')
+  }
+
+  if (lineStore.searchTags !== '') {
+    url += '+' + lineStore.searchTags.split(' ').join('+')
   }
 
   const response = await fetch(url)
@@ -70,20 +66,20 @@ async function getNextPost(): Promise<Post | null> {
 
   try {
     while (true) {
-      if (currentIndex.value >= LIMIT || posts.value.length === 0) {
-        currentIndex.value = 0
-        const fetchedPosts = await fetchPosts(currentPage.value)
+      if (lineStore.currentIndex >= LIMIT || lineStore.posts.length === 0) {
+        lineStore.currentIndex = 0
+        const fetchedPosts = await fetchPosts(lineStore.currentPage)
 
         if (fetchedPosts.length === 0) {
           return null
         }
 
-        posts.value = fetchedPosts
-        currentPage.value++
+        lineStore.posts = fetchedPosts
+        lineStore.currentPage++
       }
 
-      const post = posts.value[currentIndex.value]
-      currentIndex.value++
+      const post = lineStore.posts[lineStore.currentIndex]
+      lineStore.currentIndex++
 
       if (post) {
         const atLeastOneTagInBanList = post.tags.some((tag) =>
@@ -115,7 +111,7 @@ async function loadNextPost() {
   const post = await getNextPost()
 
   if (post) {
-    displayedPosts.value.push(post)
+    lineStore.displayedPosts.push(post)
 
     await nextTick()
     // Scroll to the bottom of the page
@@ -131,7 +127,7 @@ async function loadNextPost() {
 }
 
 async function handleLike() {
-  const lastPost = displayedPosts.value[displayedPosts.value.length - 1]
+  const lastPost = lineStore.displayedPosts[lineStore.displayedPosts.length - 1]
   if (lastPost) {
     profilesStore.like(lastPost.tags)
   }
@@ -139,7 +135,7 @@ async function handleLike() {
 }
 
 async function handleDislike() {
-  const lastPost = displayedPosts.value[displayedPosts.value.length - 1]
+  const lastPost = lineStore.displayedPosts[lineStore.displayedPosts.length - 1]
   if (lastPost) {
     profilesStore.dislike(lastPost.tags)
   }
@@ -150,17 +146,29 @@ async function handleSkip() {
   await loadNextPost()
 }
 
-onMounted(() => {
-  // Load first post on mount
-  loadNextPost()
-})
+watch(
+  () => lineStore.displayedPosts.length,
+  (newLength) => {
+    if (newLength === 0) {
+      loadNextPost()
+    }
+  },
+  {
+    immediate: true,
+  },
+)
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
-    <PostCard v-for="post in displayedPosts" :key="post.id" :post="post" class="post-card" />
+    <PostCard
+      v-for="post in lineStore.displayedPosts"
+      :key="post.id"
+      :post="post"
+      class="post-card"
+    />
 
-    <div class="w-full max-w-2xl mx-auto flex gap-4" v-if="displayedPosts.length > 0">
+    <div class="w-full max-w-2xl mx-auto flex gap-4" v-if="lineStore.displayedPosts.length > 0">
       <button
         @click="handleLike"
         :disabled="isLoadingMore"

@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { Card, CardContent, CardFooter } from '@/src/components/ui/card'
 import { useProfilesStore } from '@/src/stores/profiles'
-import type { Post } from '../PostsLine.vue'
+import type { Post } from '@/src/types/post'
 import { toast } from 'vue-sonner'
 
 const props = defineProps<{
@@ -37,16 +37,7 @@ const isFavorite = computed(() => {
 })
 
 const toggleFavorite = () => {
-  if (!profilesStore.activeProfile) return
-
-  if (isFavorite.value) {
-    const index = profilesStore.activeProfile.favorites.indexOf(props.post.fileUrl)
-    if (index > -1) {
-      profilesStore.activeProfile.favorites.splice(index, 1)
-    }
-  } else {
-    profilesStore.activeProfile.favorites.push(props.post.fileUrl)
-  }
+  profilesStore.toggleFavorite(props.post.fileUrl)
 }
 
 const toggleTagBan = (tag: string) => {

@@ -31,7 +31,6 @@ export const useProfilesStore = defineStore('profiles', () => {
 
   const MAX_VIEWED_POSTS = 10_000
 
-  // Auto-save to localStorage on every change
   watch(
     profiles,
     (newProfiles) => {
@@ -165,6 +164,18 @@ export const useProfilesStore = defineStore('profiles', () => {
     }
   }
 
+  const toggleFavorite = (fileUrl: string) => {
+    const profile = activeProfile.value
+    if (!profile) return
+
+    const index = profile.favorites.indexOf(fileUrl)
+    if (index > -1) {
+      profile.favorites.splice(index, 1)
+    } else {
+      profile.favorites.unshift(fileUrl)
+    }
+  }
+
   const addToViewed = (postId: string) => {
     const profile = activeProfile.value
     if (profile) {
@@ -215,6 +226,7 @@ export const useProfilesStore = defineStore('profiles', () => {
     renameProfile,
     toggleLock,
     removeFromFavorites,
+    toggleFavorite,
     addToViewed,
     isViewed,
   }

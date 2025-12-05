@@ -37,7 +37,7 @@ const removeFromFavorites = (fileUrl: string) => {
           />
           <button
             @click="removeFromFavorites(imageUrl)"
-            class="absolute top-2 right-2 px-3 py-1 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90"
+            class="absolute top-2 right-2 px-3 py-1 bg-destructive text-black rounded-md hover:bg-destructive/90"
           >
             Remove
           </button>
