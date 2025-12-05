@@ -57,7 +57,15 @@ const copyTags = async () => {
 
 <template>
   <Card class="w-full max-w-2xl mx-auto">
-    <CardContent class="p-4 max-h-[70vh] overflow-y-auto">
+    <CardContent
+      :class="[
+        'p-4',
+        {
+          'max-h-[70vh] overflow-y-auto': post.tags.includes('comics'),
+          'max-h-[120vh] overflow-y-auto': !post.tags.includes('comics'),
+        },
+      ]"
+    >
       <img
         :src="post.fileUrl"
         :alt="`Post ${post.id}`"
