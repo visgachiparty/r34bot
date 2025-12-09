@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useProfilesStore } from '@/src/stores/profiles'
-import { useLineStore } from '../stores/line'
 
 const profilesStore = useProfilesStore()
-const lineStore = useLineStore()
 
 enum ViewMode {
   Top = 'top',
@@ -40,32 +38,10 @@ const changeTagRate = () => {
     }
   }
 }
-
-const handleSearch = () => {
-  // Trigger a new search by calling the store action
-  lineStore.reset()
-}
 </script>
 
 <template>
   <div class="flex flex-col h-full">
-    <div class="flex flex-col gap-4">
-      <div class="mb-4 flex-shrink-0 flex flex-col gap-4">
-        <h2 class="text-xl font-bold">Search Tags</h2>
-        <textarea
-          v-model="lineStore.searchTags"
-          placeholder="Enter search tags separated by spaces..."
-          class="w-full px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
-          rows="3"
-        ></textarea>
-        <button
-          @click="handleSearch"
-          class="w-full px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          Search
-        </button>
-      </div>
-    </div>
     <div class="flex items-center justify-between mb-4 flex-shrink-0 gap-4">
       <h2 class="text-xl font-bold">Tags Rating</h2>
       <select

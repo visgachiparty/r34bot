@@ -11,6 +11,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.17
         version: 4.1.17(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2))
+      '@yeger/vue-masonry-wall':
+        specifier: ^5.1.4
+        version: 5.1.4(vue@3.5.25(typescript@5.9.3))
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1071,6 +1074,20 @@ packages:
 
   '@vueuse/shared@12.8.2':
     resolution: {integrity: sha512-dznP38YzxZoNloI0qpEfpkms8knDtaoQ6Y/sfS0L7Yki4zh40LFHEhur0odJC6xTHG5dxWVPiUWBXn+wCG2s5w==}
+
+  '@yeger/debounce@2.0.17':
+    resolution: {integrity: sha512-wz9ARkGnY25yToyaZaCz887aRxsIg96uI/waBLkV/Qfh9/VHP+C6uAFpOg8FPba0KMS2QYo2dhCOqPvCoDigyA==}
+
+  '@yeger/vue-lib-adapter@2.0.16':
+    resolution: {integrity: sha512-fxD0xY5dOy5G/c59gQ/IMbZl1MWw8tPK+moJu2WiUqpFrRQBz2U8bx95k0VSFMZqBCTEhXXomCi93C7FVRQB6A==}
+
+  '@yeger/vue-masonry-wall-core@5.0.21':
+    resolution: {integrity: sha512-YX2kQaxjYk6hOxdS5EKeZRQJy5Dmx/F2S5883xMFSS6pePji5d+2U82jVdXEkWYisFjq+I5K+5xx/MSLgSt7Hw==}
+
+  '@yeger/vue-masonry-wall@5.1.4':
+    resolution: {integrity: sha512-13a6PihxVHTyYdQzJeFY9GNz1QdpvGxlGcPqPiG/AVVD6ccMqRsxjkRHB2Bmwzs5oBhFZmO/sx5s5hB9+L5iiw==}
+    peerDependencies:
+      vue: ^3.0.0
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -3394,6 +3411,20 @@ snapshots:
       vue: 3.5.25(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
+
+  '@yeger/debounce@2.0.17': {}
+
+  '@yeger/vue-lib-adapter@2.0.16': {}
+
+  '@yeger/vue-masonry-wall-core@5.0.21':
+    dependencies:
+      '@yeger/debounce': 2.0.17
+      '@yeger/vue-lib-adapter': 2.0.16
+
+  '@yeger/vue-masonry-wall@5.1.4(vue@3.5.25(typescript@5.9.3))':
+    dependencies:
+      '@yeger/vue-masonry-wall-core': 5.0.21
+      vue: 3.5.25(typescript@5.9.3)
 
   abbrev@2.0.0: {}
 
