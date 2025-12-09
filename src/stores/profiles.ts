@@ -9,7 +9,9 @@ export type ProfileSnapshot = {
   isActive: boolean
   isLocked: boolean
   favorites: string[]
+  liked: string[]
   viewed: string[]
+  searchHistory: string[]
 }
 
 const STORAGE_KEY = 'r34-profiles'
@@ -18,7 +20,12 @@ const generateId = (): string => crypto.randomUUID()
 
 const loadProfiles = (): ProfileSnapshot[] => {
   const stored = localStorage.getItem(STORAGE_KEY)
-  return stored ? JSON.parse(stored) : []
+  const profiles = stored ? JSON.parse(stored) : []
+  return profiles.map((profile: Partial<ProfileSnapshot>) => ({
+    liked: [],
+    searchHistory: [],
+    ...profile,
+  }))
 }
 
 const saveProfiles = (profiles: ProfileSnapshot[]) => {
@@ -74,7 +81,7 @@ export const useProfilesStore = defineStore('profiles', () => {
     }
   }
 
-  const like = (tags: string[]) => {
+  const like = (tags: string[], fileUrl?: string) => {
     const profile = activeProfile.value
     if (profile && !profile.isLocked) {
       tags.forEach((tag) => {
@@ -83,6 +90,9 @@ export const useProfilesStore = defineStore('profiles', () => {
         }
         profile.tagsRate[tag] = Math.min(profile.tagsRate[tag] + 1, 100)
       })
+      if (fileUrl && !profile.liked.includes(fileUrl)) {
+        profile.liked.unshift(fileUrl)
+      }
     }
   }
 
@@ -117,7 +127,9 @@ export const useProfilesStore = defineStore('profiles', () => {
       isActive: false,
       isLocked: false,
       favorites: [],
+      liked: [],
       viewed: [],
+      searchHistory: [],
     }
 
     profiles.value.push(newProfile)
@@ -164,6 +176,16 @@ export const useProfilesStore = defineStore('profiles', () => {
     }
   }
 
+  const removeFromLiked = (fileUrl: string) => {
+    const profile = activeProfile.value
+    if (profile) {
+      const index = profile.liked.indexOf(fileUrl)
+      if (index > -1) {
+        profile.liked.splice(index, 1)
+      }
+    }
+  }
+
   const toggleFavorite = (fileUrl: string) => {
     const profile = activeProfile.value
     if (!profile) return
@@ -189,6 +211,41 @@ export const useProfilesStore = defineStore('profiles', () => {
   const isViewed = (postId: string): boolean => {
     const profile = activeProfile.value
     return profile ? profile.viewed.includes(postId) : false
+  }
+
+  const MAX_SEARCH_HISTORY = 1000
+
+  const addToSearchHistory = (query: string) => {
+    const profile = activeProfile.value
+    if (!profile) return
+
+    const trimmed = query.trim()
+    if (!trimmed) return
+
+    const index = profile.searchHistory.indexOf(trimmed)
+    if (index > -1) {
+      profile.searchHistory.splice(index, 1)
+    }
+
+    profile.searchHistory.unshift(trimmed)
+
+    if (profile.searchHistory.length > MAX_SEARCH_HISTORY) {
+      profile.searchHistory = profile.searchHistory.slice(0, MAX_SEARCH_HISTORY)
+    }
+  }
+
+  const deleteSearchHistoryItem = (index: number) => {
+    const profile = activeProfile.value
+    if (profile) {
+      profile.searchHistory.splice(index, 1)
+    }
+  }
+
+  const clearSearchHistory = () => {
+    const profile = activeProfile.value
+    if (profile) {
+      profile.searchHistory = []
+    }
   }
 
   const init = () => {
@@ -226,8 +283,12 @@ export const useProfilesStore = defineStore('profiles', () => {
     renameProfile,
     toggleLock,
     removeFromFavorites,
+    removeFromLiked,
     toggleFavorite,
     addToViewed,
     isViewed,
+    addToSearchHistory,
+    deleteSearchHistoryItem,
+    clearSearchHistory,
   }
 })

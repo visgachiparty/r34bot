@@ -43,6 +43,17 @@ const route = useRoute()
       >
         Favorites
       </RouterLink>
+      <RouterLink
+        to="/likes"
+        :class="[
+          'flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors text-center',
+          route.path === '/likes'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ]"
+      >
+        Likes
+      </RouterLink>
     </div>
 
     <!-- Settings Tabs -->

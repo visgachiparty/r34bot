@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { useLineStore } from '../stores/line'
-import { useSearchStore } from '../stores/search'
+import { useProfilesStore } from '../stores/profiles'
 
 const lineStore = useLineStore()
-const searchStore = useSearchStore()
+const profilesStore = useProfilesStore()
 
 const handleSearch = () => {
-  // Add to search history
-  searchStore.addToHistory(lineStore.searchTags)
-  // Trigger a new search by calling the store action
+  profilesStore.addToSearchHistory(lineStore.searchTags)
   lineStore.reset()
 }
 
@@ -38,11 +36,11 @@ const handleHistoryClick = (query: string) => {
       </div>
 
       <!-- Search History -->
-      <div v-if="searchStore.history.length > 0" class="flex flex-col gap-4">
+      <div v-if="profilesStore.activeProfile?.searchHistory.length ?? 0 > 0" class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold">Search History</h3>
           <button
-            @click="searchStore.clearHistory"
+            @click="profilesStore.clearSearchHistory"
             class="px-3 py-1 bg-destructive text-black rounded-md text-xs font-medium hover:bg-destructive/90 transition-colors"
           >
             Clear All
@@ -50,7 +48,7 @@ const handleHistoryClick = (query: string) => {
         </div>
         <div class="flex flex-col gap-2 max-h-96 overflow-y-auto">
           <div
-            v-for="(query, index) in searchStore.history"
+            v-for="(query, index) in profilesStore.activeProfile?.searchHistory"
             :key="index"
             class="flex items-center justify-between gap-2 px-3 py-2 bg-secondary rounded-md hover:bg-secondary/80 transition-colors group"
           >
@@ -62,8 +60,8 @@ const handleHistoryClick = (query: string) => {
               {{ query }}
             </button>
             <button
-              @click="searchStore.deleteHistoryItem(index)"
-              class="shrink-0 px-2 py-1 text-xs text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+              @click="profilesStore.deleteSearchHistoryItem(index)"
+              class="shrink-0 px-2 py-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
               title="Delete"
             >
               ✕

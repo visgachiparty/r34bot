@@ -129,7 +129,7 @@ async function handleLike() {
   const lastPost = lineStore.displayedPosts[lineStore.displayedPosts.length - 1]
   if (lastPost) {
     profilesStore.addToViewed(lastPost.id)
-    profilesStore.like(lastPost.tags)
+    profilesStore.like(lastPost.tags, lastPost.fileUrl)
   }
   await loadNextPost()
 }
@@ -187,6 +187,13 @@ watch(
       :post="post"
       class="post-card"
     />
+
+    <div
+      v-if="lineStore.displayedPosts.length === 0 && !isLoadingMore"
+      class="w-full max-w-2xl mx-auto text-center py-12"
+    >
+      <p class="text-muted-foreground text-lg">No posts found</p>
+    </div>
 
     <div class="w-full max-w-2xl mx-auto" v-if="lineStore.displayedPosts.length > 0">
       <div v-if="isLoadingMore" class="flex justify-center py-3">
