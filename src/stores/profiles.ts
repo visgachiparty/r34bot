@@ -169,20 +169,14 @@ export const useProfilesStore = defineStore('profiles', () => {
   const removeFromFavorites = (fileUrl: string) => {
     const profile = activeProfile.value
     if (profile) {
-      const index = profile.favorites.indexOf(fileUrl)
-      if (index > -1) {
-        profile.favorites.splice(index, 1)
-      }
+      profile.favorites = profile.favorites.filter((item) => item !== fileUrl)
     }
   }
 
   const removeFromLiked = (fileUrl: string) => {
     const profile = activeProfile.value
     if (profile) {
-      const index = profile.liked.indexOf(fileUrl)
-      if (index > -1) {
-        profile.liked.splice(index, 1)
-      }
+      profile.liked = profile.liked.filter((item) => item !== fileUrl)
     }
   }
 

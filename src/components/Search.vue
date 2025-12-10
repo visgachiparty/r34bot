@@ -10,6 +10,11 @@ const handleSearch = () => {
   lineStore.reset()
 }
 
+const handleClear = () => {
+  lineStore.searchTags = ''
+  lineStore.reset()
+}
+
 const handleHistoryClick = (query: string) => {
   lineStore.searchTags = query
   handleSearch()
@@ -33,10 +38,19 @@ const handleHistoryClick = (query: string) => {
         >
           Search
         </button>
+        <button
+          @click="handleClear"
+          class="w-full px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+        >
+          Clear
+        </button>
       </div>
 
       <!-- Search History -->
-      <div v-if="profilesStore.activeProfile?.searchHistory.length ?? 0 > 0" class="flex flex-col gap-4">
+      <div
+        v-if="profilesStore.activeProfile?.searchHistory.length ?? 0 > 0"
+        class="flex flex-col gap-4"
+      >
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold">Search History</h3>
           <button

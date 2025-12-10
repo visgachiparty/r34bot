@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Card, CardContent } from '@/src/components/ui/card'
 import { useProfilesStore } from '@/src/stores/profiles'
-import MasonryWall from '@yeger/vue-masonry-wall'
+import ImageGallery from '@/src/components/ImageGallery.vue'
 
 const profilesStore = useProfilesStore()
 
@@ -16,32 +15,11 @@ const removeFromFavorites = (fileUrl: string) => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-6">Favorites</h1>
-    <div v-if="favoriteImages.length === 0" class="text-center py-12">
-      <p class="text-muted-foreground text-lg">No favorites yet</p>
-    </div>
-    <MasonryWall :items="favoriteImages" :column-width="300" :gap="24">
-      <template #default="{ item: imageUrl }">
-        <Card class="relative overflow-hidden px-4 pb-4 pt-12">
-          <CardContent class="p-0">
-            <div class="w-full max-h-[80vh] overflow-y-auto">
-              <img
-                :src="imageUrl"
-                alt="Favorite image"
-                class="w-full h-auto object-cover"
-                loading="lazy"
-              />
-            </div>
-            <button
-              @click="removeFromFavorites(imageUrl)"
-              class="absolute top-2 right-2 px-3 py-1 bg-destructive text-black rounded-md hover:bg-destructive/90"
-            >
-              Remove
-            </button>
-          </CardContent>
-        </Card>
-      </template>
-    </MasonryWall>
-  </div>
+  <ImageGallery
+    :images="favoriteImages"
+    title="Favorites"
+    empty-message="No favorites yet"
+    alt-text-prefix="Favorite image"
+    :on-remove="removeFromFavorites"
+  />
 </template>
