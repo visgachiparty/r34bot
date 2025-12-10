@@ -32,9 +32,9 @@ async function fetchPosts(page: number): Promise<Post[]> {
     LIMIT +
     '&tags=-video+-gif'
 
-  if (banListString !== '') {
-    url += '+-' + banListString.split(' ').join('+-')
-  }
+  // if (banListString !== '') {
+  //   url += '+-' + banListString.split(' ').join('+-')
+  // }
 
   if (lineStore.searchTags !== '') {
     url += '+' + lineStore.searchTags.split(' ').join('+')

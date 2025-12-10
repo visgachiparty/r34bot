@@ -1,11 +1,7 @@
-export function downloadFile<T>(options: {
-  data: T
-  filename: string
-  type?: string
-}) {
-  const { data, filename, type = 'application/json' } = options
+export function downloadJSON<T>(options: { data: T; filename: string }) {
+  const { data, filename } = options
   const dataStr = JSON.stringify(data, null, 2)
-  const dataBlob = new Blob([dataStr], { type })
+  const dataBlob = new Blob([dataStr], { type: 'application/json' })
   const url = URL.createObjectURL(dataBlob)
   const link = document.createElement('a')
   link.href = url

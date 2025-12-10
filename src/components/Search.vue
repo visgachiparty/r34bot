@@ -46,13 +46,12 @@ const handleHistoryClick = (query: string) => {
         </button>
       </div>
 
-      <!-- Search History -->
       <div
         v-if="profilesStore.activeProfile?.searchHistory.length ?? 0 > 0"
         class="flex flex-col gap-4"
       >
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">Search History</h3>
+          <h3 class="text-xl font-bold">Search History</h3>
           <button
             @click="profilesStore.clearSearchHistory"
             class="px-3 py-1 bg-destructive text-black rounded-md text-xs font-medium hover:bg-destructive/90 transition-colors"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useProfilesStore } from '@/src/stores/profiles'
-import { downloadFile } from '../utils/downloadFile'
+import { downloadJSON } from '../utils/downloadJSON'
 
 const profilesStore = useProfilesStore()
 const newProfileName = ref('')
@@ -48,14 +48,14 @@ const exportProfile = (id: string, e: Event) => {
   const profile = profilesStore.profiles.find((profile) => profile.id === id)
   if (!profile) return
 
-  downloadFile({
+  downloadJSON({
     data: [profile],
     filename: `profile-${profile.id}-${Date.now()}.json`,
   })
 }
 
 const exportAllProfiles = () => {
-  downloadFile({
+  downloadJSON({
     data: profilesStore.profiles,
     filename: `all-profiles-${Date.now()}.json`,
   })
