@@ -65,7 +65,11 @@ const openImage = (imageUrl: string) => {
         class="max-w-none w-screen h-screen border-0 rounded-none p-0 bg-transparent backdrop-blur-3xl"
       >
         <div v-if="selectedImage" class="w-full h-full flex items-center justify-center p-6">
-          <img :src="selectedImage" :alt="`${altTextPrefix} full size`" class="object-contain" />
+          <img
+            :src="selectedImage"
+            :alt="`${altTextPrefix} full size`"
+            class="object-contain max-h-[80vh]"
+          />
         </div>
       </DialogContent>
     </Dialog>
